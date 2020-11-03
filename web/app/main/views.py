@@ -73,10 +73,10 @@ def systems():
         filename = secure_filename(f.filename)
         file = f.read().decode("utf-8")
 
-        TREC = bot.Bot()
-        hasErrors = TREC.validate(file)
+        automator = bot.Bot()
+        hasErrors = automator.validate(file)
         if not hasErrors:
-            TREC.saveFile(file, filename)
+            automator.saveFile(file, filename)
 
             systemname = formRanking.systemname.data
             system = System(status='submitted', name=systemname, participant_id=current_user.id, type='RANK',
@@ -84,7 +84,8 @@ def systems():
             db.session.add_all([system])
             db.session.commit()
 
-            TREC.saveSplits(file, filename)
+            automator.saveSplits(file, filename)
+            automator.create_new_precom_repo(token=os.environ['STELLA_AUTOMATOR'], repo_name=systemname, run_in=file)
 
             flash('Ranking submitted')
             return redirect(url_for('main.systems'))
@@ -222,16 +223,19 @@ def upload_files():
 
     uploaded_file = request.files['file']
     filename = secure_filename(uploaded_file.filename)
-    if filename != '':
-        file = uploaded_file.read().decode("utf-8").split('\n')[:-1]
-        if all([bool(re.match('^\d+\sQ0\s\w+\s\d*\s-?\d\.\d+\s\w+', line)) for line in file]):
-            print('RegEx validated')
-            if all([True if int(file[line].split(' ')[3]) == int(file[line - 1].split(' ')[3]) + 1 else False for line
-                    in range(1, len(file))]):
-                print('rank validated')
-                if sorted([line.split(' ')[4] for line in file], reverse=True):
-                    print('score validated')
-                    uploaded_file.save(os.path.join('uploads', filename))
+    uploaded_file.save(os.path.join('uploads', filename))
+
+    # if filename != '':
+    #     file = uploaded_file.read().decode("utf-8").split('\n')[:-1]
+    #     if all([bool(re.match('^\d+\sQ0\s\w+\s\d*\s-?\d\.\d+\s\w+', line)) for line in file]):
+    #         print('RegEx validated')
+    #         if all([True if int(file[line].split(' ')[3]) == int(file[line - 1].split(' ')[3]) + 1 else False for line
+    #                 in range(1, len(file))]):
+    #             print('rank validated')
+    #             if sorted([line.split(' ')[4] for line in file], reverse=True):
+    #                 print('score validated')
+    #                 uploaded_file.save(os.path.join('uploads', filename))
+
     return redirect(url_for('main.uploads'))
 
 
