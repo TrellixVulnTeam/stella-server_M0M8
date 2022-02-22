@@ -168,15 +168,6 @@ def setup_db(db):
                             site=user_site_b.id,
                             submission_date=datetime.date(2019, 6, 10))
     
-    pyterrier_dlm = System(status='running',
-                           name='pyterrier_dlm',
-                           participant_id=user_part_b.id,
-                           type='RANK',
-                           submitted='DOCKER',
-                           url='https://github.com/stella-project/stella-micro-pyterrier',
-                           site=user_site_b.id,
-                           submission_date=datetime.date(2019, 6, 10))
-    
     pyterrier_tf = System(status='running',
                            name='pyterrier_tf',
                            participant_id=user_part_b.id,
@@ -189,7 +180,6 @@ def setup_db(db):
     db.session.add_all([
         pyterrier_bm25,
         pyterrier_pl2,
-        pyterrier_dlm,
         pyterrier_tf,
     ])
 
